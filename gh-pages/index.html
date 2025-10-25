@@ -15,7 +15,45 @@
         .loading { background: #fff3cd; }
         .ready { background: #d1e7dd; }
         .error { background: #f8d7da; }
-        input, button { padding: 10px; margin: 5px; }
+        input, button { 
+            padding: 12px 16px; 
+            margin: 5px; 
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        
+        input {
+            background: #fff;
+            color: #333;
+            width: 500px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #45a049;
+            border-color: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
         #results { margin-top: 20px; }
         .result { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px; }
         .result strong { color: #0066cc; display: block; margin-bottom: 8px; }
@@ -63,8 +101,8 @@
     
     <div id="search-ui" style="display:none;">
         <h2>Test Search</h2>
-        <input type="text" id="query" placeholder="How to configure OPC UA?" style="width: 500px;">
-        <button onclick="search()">Search</button>
+        <input type="text" id="query" placeholder="How to configure OPC UA?">
+        <button onclick="search()">🔍 Search</button>
         <div id="results"></div>
     </div>
     
