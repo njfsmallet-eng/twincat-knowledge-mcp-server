@@ -112,6 +112,16 @@ async function init() {
         }
         embeddings = parseNpy(decompressed.buffer);
         
+        // Vérifier que le nombre de chunks et d'embeddings correspond
+        if (chunks.length !== embeddings.length) {
+            console.warn(`[DEBUG] Mismatch: ${chunks.length} chunks vs ${embeddings.length} embeddings`);
+            // Tronquer au plus petit nombre pour éviter les erreurs
+            const minLength = Math.min(chunks.length, embeddings.length);
+            chunks = chunks.slice(0, minLength);
+            embeddings = embeddings.slice(0, minLength);
+            console.log(`[DEBUG] Truncated to ${minLength} items`);
+        }
+        
         statusEl.className = 'status ready';
         statusEl.textContent = `Ready! ${chunks.length} chunks loaded`;
         document.getElementById('search-ui').style.display = 'block';
@@ -227,17 +237,16 @@ function parseNpy(buffer) {
     
     console.log('[DEBUG] Expected data size:', expectedDataSize, 'Available size:', availableSize);
     
-    // Utiliser la taille disponible si elle est plus petite que la taille attendue
-    const actualDataSize = Math.min(expectedDataSize, availableSize);
-    const actualNumVectors = Math.floor(actualDataSize / (dims * 4));
+    // Utiliser exactement le nombre de vecteurs attendu
+    const actualNumVectors = numVectors;
     
-    console.log('[DEBUG] Using actual data size:', actualDataSize, 'Actual vectors:', actualNumVectors);
+    console.log('[DEBUG] Using exact number of vectors:', actualNumVectors);
     
     if (actualNumVectors === 0) {
         throw new Error(`No data available: actual vectors = ${actualNumVectors}`);
     }
     
-    // Lire données float32 avec la taille corrigée
+    // Lire données float32 avec la taille exacte
     const data = new Float32Array(buffer, offset, actualNumVectors * dims);
     
     // Convertir en array de vecteurs
