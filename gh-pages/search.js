@@ -234,19 +234,17 @@ function parseNpy(buffer) {
     // Calculer la taille des données et vérifier les limites
     const expectedDataSize = numVectors * dims * 4; // 4 bytes par float32
     const availableSize = buffer.byteLength - offset;
+    const actualDataSize = Math.min(expectedDataSize, availableSize);
+    const actualNumVectors = Math.floor(actualDataSize / (dims * 4));
     
     console.log('[DEBUG] Expected data size:', expectedDataSize, 'Available size:', availableSize);
-    
-    // Utiliser exactement le nombre de vecteurs attendu
-    const actualNumVectors = numVectors;
-    
-    console.log('[DEBUG] Using exact number of vectors:', actualNumVectors);
+    console.log('[DEBUG] Using actual data size:', actualDataSize, 'Actual vectors:', actualNumVectors);
     
     if (actualNumVectors === 0) {
         throw new Error(`No data available: actual vectors = ${actualNumVectors}`);
     }
     
-    // Lire données float32 avec la taille exacte
+    // Lire données float32 avec la taille disponible
     const data = new Float32Array(buffer, offset, actualNumVectors * dims);
     
     // Convertir en array de vecteurs
