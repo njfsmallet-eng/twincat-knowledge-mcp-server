@@ -62,28 +62,9 @@ npm install
 
 ## Usage
 
-### Generating Embeddings
-
-1. **GPU recommended** (ROCm for AMD or CUDA for NVIDIA) for faster processing, but CPU works too
-
-2. Generate embeddings:
-```bash
-cd scripts
-python generate_embeddings.py
-```
-
-3. Push to GitHub:
-```bash
-git add embeddings/
-git commit -m "Update embeddings"
-git push
-```
-
-GitHub Actions will automatically deploy to GitHub Pages.
-
 ### Using the MCP Server
 
-Once configured in Claude Desktop, use the `search_knowledge` tool:
+Once configured in Claude Desktop/Cursor, use the `search_knowledge` tool:
 
 ```
 "Search for information about OPC UA configuration"
