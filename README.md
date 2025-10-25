@@ -116,6 +116,16 @@ Once configured in Claude Desktop, use the `search_knowledge` tool:
 - `product`: TF6100, TC3, TE1000, etc.
 - `top_k`: Number of results (default: 5)
 
+### Testing the Search API
+
+You can test the search functionality directly in your browser at:
+**https://njfsmallet-eng.github.io/twincat-knowledge-mcp-server/**
+
+This web interface allows you to:
+- Test semantic search queries
+- See real-time results from the TwinCAT documentation
+- Verify that the API is working correctly before configuring Claude Desktop
+
 ## File Structure
 
 ```
