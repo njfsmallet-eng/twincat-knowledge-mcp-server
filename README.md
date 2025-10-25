@@ -49,15 +49,15 @@ npm install
 {
   "mcpServers": {
     "twincat-knowledge": {
-      "command": "node",
-      "args": ["C:/path/to/twincat-knowledge-mcp-server/src/index.ts"],
+      "command": "npx",
+      "args": ["-y", "tsx", "C:\\path\\to\\twincat-knowledge-mcp-server\\src\\index.ts"],
       "env": {}
     }
   }
 }
 ```
 
-**Note**: Replace `C:/path/to/twincat-knowledge-mcp-server` with your actual path to the cloned repository.
+**Note**: Replace `C:\\path\\to\\twincat-knowledge-mcp-server` with your actual path to the cloned repository.
 
 ## Installation (For Developers)
 
