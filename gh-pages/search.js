@@ -112,16 +112,6 @@ async function init() {
         }
         embeddings = parseNpy(decompressed.buffer);
         
-        // Vérifier que le nombre de chunks et d'embeddings correspond
-        if (chunks.length !== embeddings.length) {
-            console.warn(`[DEBUG] Mismatch: ${chunks.length} chunks vs ${embeddings.length} embeddings`);
-            // Tronquer au plus petit nombre pour éviter les erreurs
-            const minLength = Math.min(chunks.length, embeddings.length);
-            chunks = chunks.slice(0, minLength);
-            embeddings = embeddings.slice(0, minLength);
-            console.log(`[DEBUG] Truncated to ${minLength} items`);
-        }
-        
         statusEl.className = 'status ready';
         statusEl.textContent = `Ready! ${chunks.length} chunks loaded`;
         document.getElementById('search-ui').style.display = 'block';
@@ -143,21 +133,19 @@ async function search(query, topK = 10) {
     const output = await embedder(query, { pooling: 'mean', normalize: true });
     const queryEmb = Array.from(output.data);
     
-    // 2. Cosine similarity avec tous les embeddings
-    const scores = embeddings.map((docEmb, idx) => ({
-        idx,
-        score: cosineSimilarity(queryEmb, docEmb)
-    }));
+    // 2. Cosine similarity avec tous les embeddings (comme le client MCP)
+    const results = [];
+    for (let i = 0; i < chunks.length && i < embeddings.length; i++) {
+        const similarity = cosineSimilarity(queryEmb, embeddings[i]);
+        results.push({
+            ...chunks[i],
+            score: similarity
+        });
+    }
     
     // 3. Trier et prendre top-K
-    scores.sort((a, b) => b.score - a.score);
-    const topResults = scores.slice(0, topK);
-    
-    // 4. Retourner chunks avec scores
-    return topResults.map(({ idx, score }) => ({
-        ...chunks[idx],
-        score
-    }));
+    results.sort((a, b) => b.score - a.score);
+    return results.slice(0, topK);
 }
 
 // Cosine similarity
