@@ -253,7 +253,7 @@ window.search = async function() {
         <div class="result">
             <strong>${r.metadata.title}</strong> (${r.metadata.product})
             <br>Score: ${r.score.toFixed(3)}
-            <br><small>${r.text.substring(0, 200)}...</small>
+            <br><small>${r.text}</small>
         </div>
     `).join('');
 };
