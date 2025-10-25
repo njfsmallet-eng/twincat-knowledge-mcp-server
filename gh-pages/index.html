@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinCAT Knowledge API</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .loading { background: #fff3cd; }
+        .ready { background: #d1e7dd; }
+        .error { background: #f8d7da; }
+        input, button { padding: 10px; margin: 5px; }
+        #results { margin-top: 20px; }
+        .result { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .result strong { color: #0066cc; }
+        .result small { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🔍 TwinCAT Knowledge Search API</h1>
+    <div id="status" class="status loading">Initializing...</div>
+    
+    <div id="search-ui" style="display:none;">
+        <h2>Test Search</h2>
+        <input type="text" id="query" placeholder="How to configure OPC UA?" style="width: 500px;">
+        <button onclick="search()">Search</button>
+        <div id="results"></div>
+    </div>
+    
+    <script type="module" src="search.js"></script>
+</body>
+</html>

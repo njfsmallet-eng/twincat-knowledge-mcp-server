@@ -1,0 +1,5 @@
+{
+  "chunks": "https://media.githubusercontent.com/media/njfsmallet-eng/twincat-knowledge-mcp-server/refs/heads/main/embeddings/chunks.json",
+  "embeddings": "https://media.githubusercontent.com/media/njfsmallet-eng/twincat-knowledge-mcp-server/refs/heads/main/embeddings/embeddings.npy.gz",
+  "metadata": "https://raw.githubusercontent.com/njfsmallet-eng/twincat-knowledge-mcp-server/e361be145a8b98b7a4b4817f9faa423a695a4489/embeddings/metadata.json"
+}

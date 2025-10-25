@@ -1,0 +1,9 @@
+{
+  "name": "twincat-knowledge-gh-pages",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@xenova/transformers": "^2.10.0",
+    "pako": "^2.1.0"
+  }
+}

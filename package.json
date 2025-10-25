@@ -1,0 +1,38 @@
+{
+  "name": "@njfsmallet-eng/twincat-knowledge-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for TwinCAT knowledge base semantic search - Access 42,000+ documentation chunks with AI-powered search",
+  "type": "module",
+  "main": "./src/index.ts",
+  "bin": {
+    "twincat-knowledge-mcp": "./src/index.ts",
+    "twincat-knowledge": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/index.ts"
+  },
+  "keywords": [
+    "twincat",
+    "beckhoff",
+    "mcp",
+    "model-context-protocol",
+    "knowledge-base",
+    "semantic-search",
+    "automation",
+    "plc",
+    "industrial-automation"
+  ],
+  "author": "Nicolas JFS Mallet",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/njfsmallet-eng/twincat-knowledge-mcp-server"
+  },
+  "homepage": "https://github.com/njfsmallet-eng/twincat-knowledge-mcp-server",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

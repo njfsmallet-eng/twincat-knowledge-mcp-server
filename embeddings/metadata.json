@@ -1,0 +1,8 @@
+{
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "dimensions": 384,
+  "num_chunks": 42314,
+  "chunk_size": 512,
+  "overlap": 50,
+  "generated_at": "2025-10-25T18:42:51.641232"
+}

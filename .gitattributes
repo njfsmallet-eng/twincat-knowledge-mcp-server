@@ -1,0 +1,4 @@
+# Track large embedding files with Git LFS
+embeddings/chunks.json filter=lfs diff=lfs merge=lfs -text
+embeddings/embeddings.npy.gz filter=lfs diff=lfs merge=lfs -text
+*.npy.gz filter=lfs diff=lfs merge=lfs -text
