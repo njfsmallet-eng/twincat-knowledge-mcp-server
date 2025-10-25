@@ -9,7 +9,7 @@ This project provides a complete semantic search solution for TwinCAT 3 document
 1. **PDF Conversion**: Converts 290 TwinCAT 3 documentation PDFs from Beckhoff to Markdown format
 2. **Embedding Generation**: Generates semantic embeddings using GPU-accelerated models
 3. **Search API**: Hosts a search API on GitHub Pages using Transformers.js
-4. **MCP Server**: Provides an MCP-compatible interface for Claude Desktop
+4. **MCP Server**: Provides an MCP-compatible interface for Claude Desktop/Cursor
 
 ## Architecture
 
@@ -30,7 +30,7 @@ This project provides a complete semantic search solution for TwinCAT 3 document
 - **Rich Metadata**: Structured YAML frontmatter for advanced filtering
 - **Category Support**: Search by product, category, version, and more
 
-## Quick Start (For Users)
+## Quick Start
 
 ### Local Installation
 
@@ -59,29 +59,6 @@ npm install
 ```
 
 **Note**: Replace `C:\\path\\to\\twincat-knowledge-mcp-server` with your actual path to the cloned repository.
-
-## Installation (For Developers)
-
-### 1. Clone the repository:
-```bash
-git clone https://github.com/njfsmallet-eng/twincat-knowledge-mcp-server.git
-cd twincat-knowledge-mcp-server
-```
-
-### 2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Install Node.js dependencies:
-```bash
-npm install
-```
-
-### 4. Build the project (optional):
-```bash
-npm run build
-```
 
 ## Usage
 
