@@ -251,9 +251,22 @@ window.search = async function() {
     
     resultsEl.innerHTML = results.map(r => `
         <div class="result">
-            <strong>${r.metadata.title}</strong> (${r.metadata.product})
-            <br>Score: ${r.score.toFixed(3)}
-            <br><small>${r.text}</small>
+            <strong>${r.metadata.title}</strong>
+            <div style="margin: 5px 0; font-size: 0.9em; color: #666;">
+                📦 <strong>Product:</strong> ${r.metadata.product} | 
+                🏷️ <strong>Category:</strong> ${r.metadata.category} | 
+                📅 <strong>Version:</strong> ${r.metadata.version || 'N/A'} | 
+                🌐 <strong>Language:</strong> ${r.metadata.language}
+            </div>
+            <div style="margin: 5px 0; font-size: 0.8em; color: #888;">
+                🏷️ <strong>Tags:</strong> ${r.metadata.tags ? r.metadata.tags.join(', ') : 'N/A'}
+            </div>
+            <div style="margin: 8px 0; font-size: 0.9em;">
+                <strong>Score:</strong> ${r.score.toFixed(3)}
+            </div>
+            <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 0.9em; line-height: 1.4;">
+                ${r.text}
+            </div>
         </div>
     `).join('');
 };
