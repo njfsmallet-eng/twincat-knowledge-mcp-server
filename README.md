@@ -24,7 +24,7 @@ This project provides a complete semantic search solution for TwinCAT 3 document
 ## Features
 
 - **Semantic Search**: Natural language search using transformer-based embeddings
-- **GPU Acceleration**: Fast embedding generation with ROCm (AMD GPU) support
+- **GPU Acceleration**: Fast embedding generation with ROCm (AMD) or CUDA (NVIDIA) support (CPU fallback available)
 - **GitHub Pages API**: Free, unlimited hosting with Transformers.js
 - **Rich Metadata**: Structured YAML frontmatter for advanced filtering
 - **Category Support**: Search by product, category, version, and more
@@ -59,22 +59,6 @@ npm install
 
 **Note**: Replace `C:/path/to/twincat-knowledge-mcp-server` with your actual path to the cloned repository.
 
-### Alternative: Using tsx for TypeScript
-
-If you prefer to run TypeScript directly without compilation:
-
-```json
-{
-  "mcpServers": {
-    "twincat-knowledge": {
-      "command": "npx",
-      "args": ["-y", "tsx", "C:/path/to/twincat-knowledge-mcp-server/src/index.ts"],
-      "env": {}
-    }
-  }
-}
-```
-
 ## Installation (For Developers)
 
 ### 1. Clone the repository:
@@ -100,9 +84,9 @@ npm run build
 
 ## Usage
 
-### Generating Embeddings (Local GPU Required)
+### Generating Embeddings
 
-1. Ensure you have a GPU with ROCm support
+1. **GPU recommended** (ROCm for AMD or CUDA for NVIDIA) for faster processing, but CPU works too
 
 2. Generate embeddings:
 ```bash
@@ -175,14 +159,14 @@ twincat-knowledge-mcp-server/
 ## Architecture Details
 
 ### Embedding Generation
-- **Model**: `Alibaba-NLP/gte-small-en-v1.5` (384 dimensions)
-- **GPU**: ROCm (AMD) or CUDA (NVIDIA)
+- **Model**: `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions)
+- **GPU**: ROCm (AMD) or CUDA (NVIDIA) - CPU fallback available
 - **Format**: Float32 NumPy arrays compressed with gzip
-- **Size**: ~13 MB compressed for all documents
+- **Size**: ~57 MB compressed for all documents
 
 ### Search API
 - **Frontend**: Transformers.js in browser
-- **Model**: Xenova/gte-small-en-v1.5 ONNX
+- **Model**: `Xenova/all-MiniLM-L6-v2` ONNX (quantized)
 - **Latency**: ~500ms-1s per query
 - **Cache**: IndexedDB for model caching
 
@@ -198,15 +182,6 @@ twincat-knowledge-mcp-server/
 - **Dependencies**: Only MCP SDK required
 - **Size**: ~160 MB (includes embeddings and documentation)
 - **Files**: 338 files total
-
-## Contributing
-
-Contributions welcome! Areas for improvement:
-- Support for additional TwinCAT products
-- Multi-language support
-- Improved chunking strategies
-- Vector database integration
-- Better embedding model integration
 
 ## License
 
