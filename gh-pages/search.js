@@ -3,7 +3,6 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.10
 let embedder = null;
 let chunks = null;
 let embeddings = null;
-let useFallback = false;
 
 // Configuration - à mettre à jour avec votre repo GitHub
 const GITHUB_USER = 'njfsmallet-eng';
@@ -20,22 +19,15 @@ async function init() {
         
         // 1. Charger modèle ONNX (cache automatique IndexedDB)
         console.log('[DEBUG] Loading model pipeline...');
-        try {
-            embedder = await pipeline(
-                'feature-extraction',
-                'Xenova/all-MiniLM-L6-v2',
-                {
-                    quantized: true, // Use quantized model for faster loading
-                    cache_dir: 'indexeddb://transformers-cache' // Cache in IndexedDB
-                }
-            );
-            console.log('[DEBUG] Model loaded successfully');
-        } catch (error) {
-            console.error('[DEBUG] Failed to load transformer:', error);
-            console.error('[DEBUG] Using fallback embedding (search will be less accurate)');
-            useFallback = true;
-            embedder = 'fallback';
-        }
+        embedder = await pipeline(
+            'feature-extraction',
+            'Xenova/all-MiniLM-L6-v2',
+            {
+                quantized: true, // Use quantized model for faster loading
+                cache_dir: 'indexeddb://transformers-cache' // Cache in IndexedDB
+            }
+        );
+        console.log('[DEBUG] Model loaded successfully');
         
         statusEl.textContent = 'Loading embeddings URLs...';
         
@@ -121,10 +113,7 @@ async function init() {
         embeddings = parseNpy(decompressed.buffer);
         
         statusEl.className = 'status ready';
-        const statusText = useFallback 
-            ? `Ready! ${chunks.length} chunks loaded (using fallback embedding)`
-            : `Ready! ${chunks.length} chunks loaded`;
-        statusEl.textContent = statusText;
+        statusEl.textContent = `Ready! ${chunks.length} chunks loaded`;
         document.getElementById('search-ui').style.display = 'block';
         
     } catch (error) {
@@ -141,14 +130,8 @@ async function search(query, topK = 10) {
     }
     
     // 1. Générer embedding de la query
-    let queryEmb;
-    if (useFallback || embedder === 'fallback') {
-        console.log('[DEBUG] Using fallback embedding');
-        queryEmb = getSimpleEmbedding(query);
-    } else {
-        const output = await embedder(query, { pooling: 'mean', normalize: true });
-        queryEmb = Array.from(output.data);
-    }
+    const output = await embedder(query, { pooling: 'mean', normalize: true });
+    const queryEmb = Array.from(output.data);
     
     // 2. Cosine similarity avec tous les embeddings
     const scores = embeddings.map((docEmb, idx) => ({
@@ -165,30 +148,6 @@ async function search(query, topK = 10) {
         ...chunks[idx],
         score
     }));
-}
-
-// Fallback embedding simple
-function getSimpleEmbedding(text) {
-    // Simple bag-of-words-like embedding
-    const words = text.toLowerCase().split(/\s+/);
-    const embedding = new Array(384).fill(0);
-    
-    words.forEach((word) => {
-        let hash = 0;
-        for (let i = 0; i < word.length; i++) {
-            hash = ((hash << 5) - hash) + word.charCodeAt(i);
-            hash = hash & hash;
-        }
-        const index = Math.abs(hash) % 384;
-        embedding[index] += 1.0;
-    });
-    
-    // Normalize
-    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-    if (norm > 0) {
-        return embedding.map(v => v / norm);
-    }
-    return embedding;
 }
 
 // Cosine similarity
