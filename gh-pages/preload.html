@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preload Model - TwinCAT Knowledge API</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .loading { background: #fff3cd; }
+        .ready { background: #d1e7dd; }
+        .error { background: #f8d7da; }
+        .info { background: #d1ecf1; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Preload Xenova Model</h1>
+    <div id="status" class="status loading">Starting model preload...</div>
+    <div id="log"></div>
+    
+    <script type="module" src="preload-model.js"></script>
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logDiv = document.getElementById('log');
+        const statusDiv = document.getElementById('status');
+        
+        function addLog(message, type = 'info') {
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.style.color = type === 'error' ? '#dc3545' : '#28a745';
+            logDiv.appendChild(p);
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog(args.join(' '), 'error');
+        };
+        
+        // Update status
+        setTimeout(() => {
+            statusDiv.textContent = 'Model preload completed! Check logs below.';
+            statusDiv.className = 'status ready';
+        }, 1000);
+    </script>
+</body>
+</html>
