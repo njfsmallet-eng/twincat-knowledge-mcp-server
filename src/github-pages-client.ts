@@ -1,5 +1,6 @@
 import { SearchResult, SearchFilters, ChunkMetadata } from './types.js';
 import { pipeline } from '@xenova/transformers';
+import { CacheManager } from './cache-manager.js';
 
 interface EmbeddingsUrls {
   chunks: string;
@@ -10,9 +11,11 @@ interface EmbeddingsUrls {
 export class GitHubPagesClient {
   private baseUrl: string;
   private embedder: any = null;
+  private cacheManager: CacheManager;
   
-  constructor(githubUser: string, repo: string) {
+  constructor(githubUser: string, repo: string, cacheDir: string = '.cache') {
     this.baseUrl = `https://${githubUser}.github.io/${repo}`;
+    this.cacheManager = new CacheManager(cacheDir, this.baseUrl);
   }
   
   private async initializeEmbedder() {
@@ -25,7 +28,8 @@ export class GitHubPagesClient {
       'feature-extraction',
       'Xenova/all-MiniLM-L6-v2',
       {
-        quantized: true
+        quantized: true,
+        cache_dir: this.cacheManager.getModelCachePath()
       }
     );
     console.error('[MCP] Embedding model initialized');
@@ -35,36 +39,19 @@ export class GitHubPagesClient {
   
   async search(query: string, filters: SearchFilters = {}): Promise<SearchResult[]> {
     try {
-      // Appeler l'API hébergée sur GitHub Pages via le fichier API
-      const apiUrl = `${this.baseUrl}/api/embeddings.json`;
-      console.error(`[MCP] Fetching embeddings URLs from: ${apiUrl}`);
+      // Ensure cache directory exists
+      await this.cacheManager.ensureCacheDirectory();
       
-      const apiRes = await fetch(apiUrl);
-      if (!apiRes.ok) {
-        throw new Error(`Failed to fetch embeddings API: ${apiRes.status}`);
-      }
-      
-      const urls = await apiRes.json() as EmbeddingsUrls;
-      console.error(`[MCP] Embeddings URLs loaded:`, urls);
-      
-      // Charger les chunks
-      console.error(`[MCP] Loading chunks from: ${urls.chunks}`);
-      const chunksRes = await fetch(urls.chunks);
-      if (!chunksRes.ok) {
-        throw new Error(`Failed to load chunks: ${chunksRes.status}`);
-      }
-      const chunks = await chunksRes.json() as ChunkMetadata[];
+      // Load chunks from cache or download
+      console.error('[MCP] Loading chunks...');
+      const chunks = await this.cacheManager.loadOrDownloadChunks();
       console.error(`[MCP] Loaded ${chunks.length} chunks`);
       
-      // Charger et décompresser les embeddings
-      console.error(`[MCP] Loading embeddings from: ${urls.embeddings}`);
-      const embRes = await fetch(urls.embeddings);
-      if (!embRes.ok) {
-        throw new Error(`Failed to load embeddings: ${embRes.status}`);
-      }
-      const embBuffer = await embRes.arrayBuffer();
+      // Load embeddings from cache or download
+      console.error('[MCP] Loading embeddings...');
+      const embBuffer = await this.cacheManager.loadOrDownloadEmbeddings();
       
-      // Utiliser l'API native DecompressionStream
+      // Decompress embeddings
       let decompressed: Uint8Array;
       try {
         const stream = new DecompressionStream('gzip');

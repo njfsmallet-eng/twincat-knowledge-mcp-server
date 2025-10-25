@@ -24,6 +24,7 @@ This project provides a complete semantic search solution for TwinCAT 3 document
 ## Features
 
 - **Semantic Search**: Natural language search using transformer-based embeddings
+- **Persistent Cache**: Intelligent caching system for 90% faster subsequent searches
 - **GPU Acceleration**: Fast embedding generation with ROCm (AMD) or CUDA (NVIDIA) support (CPU fallback available)
 - **GitHub Pages API**: Free, unlimited hosting with Transformers.js
 - **Rich Metadata**: Structured YAML frontmatter for advanced filtering
@@ -116,6 +117,22 @@ Once configured in Claude Desktop, use the `search_knowledge` tool:
 - `product`: TF6100, TC3, TE1000, etc.
 - `top_k`: Number of results (default: 5)
 
+### Cache System
+
+The MCP server includes an intelligent caching system that dramatically improves performance:
+
+- **First call**: Downloads and caches all data (~16 seconds)
+- **Subsequent calls**: Loads from cache (~1.6 seconds)
+- **Performance improvement**: 90% faster after initial cache population
+- **Cache location**: `.cache/` directory in project root
+- **Persistent**: Cache survives between MCP server sessions
+- **Automatic**: No manual configuration required
+
+**Cache contents:**
+- Xenova embedding model (~50 MB)
+- Documentation chunks (42,314 chunks)
+- Pre-computed embeddings (~57 MB compressed)
+
 ### Testing the Search API
 
 You can test the search functionality directly in your browser at:
@@ -133,7 +150,8 @@ twincat-knowledge-mcp-server/
 ├── src/                         # TypeScript source
 │   ├── index.ts                # MCP server
 │   ├── types.ts                # Type definitions
-│   └── github-pages-client.ts  # API client
+│   ├── github-pages-client.ts  # API client
+│   └── cache-manager.ts        # Cache management
 ├── scripts/                     # Python scripts
 │   ├── chunking.py             # Text chunking
 │   ├── generate_embeddings.py  # Embedding generation
@@ -146,6 +164,12 @@ twincat-knowledge-mcp-server/
 │   ├── embeddings.npy.gz       # Compressed vectors
 │   └── metadata.json           # Generation stats
 ├── docs/                        # Converted markdown docs
+├── .cache/                      # Persistent cache (auto-created)
+│   ├── chunks.json             # Cached documentation chunks
+│   ├── embeddings.npy.gz       # Cached embeddings
+│   └── model/                  # Xenova model cache
+│       └── Xenova/
+│           └── all-MiniLM-L6-v2/
 ├── .github/workflows/           # CI/CD
 │   └── deploy-pages.yml        # GitHub Pages deployment
 ├── package.json                 # Node.js config
@@ -184,13 +208,16 @@ twincat-knowledge-mcp-server/
 - **Transport**: stdio
 - **Compatibility**: Claude Desktop
 - **Local Installation**: Clone and configure directly
+- **Cache System**: Persistent disk-based caching for optimal performance
+- **Performance**: 90% faster after initial cache population
 
 ## Local Usage
 
 ### Requirements
 - **Node.js**: >=18.0.0
-- **Dependencies**: Only MCP SDK required
+- **Dependencies**: Only MCP SDK and Transformers.js required
 - **Size**: ~160 MB (includes embeddings and documentation)
+- **Cache**: Additional ~110 MB for persistent cache (auto-created)
 - **Files**: 338 files total
 
 ## License

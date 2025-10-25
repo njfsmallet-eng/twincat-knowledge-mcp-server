@@ -5,11 +5,33 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { GitHubPagesClient } from './github-pages-client.js';
+import { promises as fs } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const GITHUB_USER = 'njfsmallet-eng';
 const REPO_NAME = 'twincat-knowledge-mcp-server';
 
-const searchClient = new GitHubPagesClient(GITHUB_USER, REPO_NAME);
+// Get the project root directory (where package.json is located)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const PROJECT_ROOT = dirname(__dirname);
+const CACHE_DIR = join(PROJECT_ROOT, '.cache');
+
+// Set up Xenova cache directory
+process.env.TRANSFORMERS_CACHE = join(CACHE_DIR, 'model');
+
+// Ensure cache directory exists
+async function ensureCacheDirectory() {
+  try {
+    await fs.access(CACHE_DIR);
+  } catch {
+    await fs.mkdir(CACHE_DIR, { recursive: true });
+    console.error(`[MCP] Created cache directory: ${CACHE_DIR}`);
+  }
+}
+
+const searchClient = new GitHubPagesClient(GITHUB_USER, REPO_NAME, CACHE_DIR);
 
 const server = new Server(
   {
@@ -104,6 +126,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function main() {
+  // Ensure cache directory exists before starting
+  await ensureCacheDirectory();
+  
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('TwinCAT Knowledge MCP Server running on stdio');
