@@ -158,7 +158,7 @@ function parseNpy(buffer) {
     
     // Lire version et header
     const version = view.getUint8(6);
-    let offset = 10; // Skip magic + version
+    let offset = version === 1 ? 8 : 10;
     
     // Lire header length (2 bytes pour v1, 4 bytes pour v2)
     let headerLen;
