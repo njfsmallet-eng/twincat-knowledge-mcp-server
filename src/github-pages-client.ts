@@ -1,4 +1,5 @@
 import { SearchResult, SearchFilters, ChunkMetadata } from './types.js';
+import { pipeline } from '@xenova/transformers';
 
 interface EmbeddingsUrls {
   chunks: string;
@@ -8,9 +9,28 @@ interface EmbeddingsUrls {
 
 export class GitHubPagesClient {
   private baseUrl: string;
+  private embedder: any = null;
   
   constructor(githubUser: string, repo: string) {
     this.baseUrl = `https://${githubUser}.github.io/${repo}`;
+  }
+  
+  private async initializeEmbedder() {
+    if (this.embedder !== null) {
+      return this.embedder;
+    }
+    
+    console.error('[MCP] Initializing Xenova embedding model...');
+    this.embedder = await pipeline(
+      'feature-extraction',
+      'Xenova/all-MiniLM-L6-v2',
+      {
+        quantized: true
+      }
+    );
+    console.error('[MCP] Embedding model initialized');
+    
+    return this.embedder;
   }
   
   async search(query: string, filters: SearchFilters = {}): Promise<SearchResult[]> {
@@ -62,8 +82,7 @@ export class GitHubPagesClient {
       const embeddings = this.parseNpy(decompressed.buffer as ArrayBuffer);
       console.error(`[MCP] Parsed ${embeddings.length} embedding vectors`);
       
-      // Charger le modèle d'embedding (nous allons utiliser une version côté serveur)
-      // Pour l'instant, nous allons utiliser un embedding simple basé sur TF-IDF
+      // Charger et utiliser le modèle d'embedding Xenova
       const queryEmbedding = await this.getQueryEmbedding(query);
       
       // Calculer les similarités
@@ -106,34 +125,13 @@ export class GitHubPagesClient {
   }
   
   private async getQueryEmbedding(query: string): Promise<number[]> {
-    // NOTE: This simplified embedding method doesn't match the quality of the
-    // Xenova model used to generate the pre-computed embeddings.
-    // For production use, consider either:
-    // 1. Using @xenova/transformers with pipeline feature extraction
-    // 2. Proxying requests to the GitHub Pages search API
-    // 
-    // Current implementation uses a hash-based approach for simplicity.
+    // Initialize the embedder if not already done
+    const embedder = await this.initializeEmbedder();
     
-    const words = query.toLowerCase().split(/\s+/);
-    const embedding = new Array(384).fill(0);
+    // Generate embedding using the Xenova model (same as search.js)
+    const output = await embedder(query, { pooling: 'mean', normalize: true });
+    const embedding = Array.from(output.data) as number[];
     
-    // Simple hash-based encoding (NOT production quality)
-    for (let i = 0; i < words.length && i < 384; i++) {
-      const word = words[i];
-      let hash = 0;
-      for (let j = 0; j < word.length; j++) {
-        hash = ((hash << 5) - hash) + word.charCodeAt(j);
-        hash = hash & hash;
-      }
-      const index = Math.abs(hash) % 384;
-      embedding[index] = 1.0;
-    }
-    
-    // Normalize
-    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-    if (norm > 0) {
-      return embedding.map(v => v / norm);
-    }
     return embedding;
   }
   
