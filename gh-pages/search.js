@@ -71,32 +71,14 @@ async function init() {
         const embBuffer = await embRes.arrayBuffer();
         console.log('[DEBUG] Embeddings buffer size:', embBuffer.byteLength);
         
-        // Décompresser avec l'API native du navigateur ou Pako
+        // Décompresser avec l'API native du navigateur (comme le client MCP)
         let decompressed;
         try {
-            // Essayer d'abord l'API native DecompressionStream (plus récente)
             const stream = new DecompressionStream('gzip');
-            const writer = stream.writable.getWriter();
-            const reader = stream.readable.getReader();
-            
-            writer.write(new Uint8Array(embBuffer));
-            writer.close();
-            
-            const chunks = [];
-            let done = false;
-            while (!done) {
-                const { value, done: readerDone } = await reader.read();
-                done = readerDone;
-                if (value) chunks.push(value);
-            }
-            
-            const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-            decompressed = new Uint8Array(totalLength);
-            let offset = 0;
-            for (const chunk of chunks) {
-                decompressed.set(chunk, offset);
-                offset += chunk.length;
-            }
+            const blob = new Blob([embBuffer]);
+            const decompressedBlob = await blob.stream().pipeThrough(stream);
+            const decompressedArrayBuffer = await new Response(decompressedBlob).arrayBuffer();
+            decompressed = new Uint8Array(decompressedArrayBuffer);
         } catch (error) {
             console.log('[DEBUG] Native decompression failed, loading Pako...');
             // Fallback: charger Pako dynamiquement
