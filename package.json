@@ -1,13 +1,8 @@
 {
-  "name": "@njfsmallet-eng/twincat-knowledge-mcp",
+  "name": "twincat-knowledge-mcp-server",
   "version": "1.0.0",
   "description": "MCP server for TwinCAT knowledge base semantic search - Access 42,000+ documentation chunks with AI-powered search",
   "type": "module",
-  "main": "./src/index.ts",
-  "bin": {
-    "twincat-knowledge-mcp": "./src/index.ts",
-    "twincat-knowledge": "./src/index.ts"
-  },
   "scripts": {
     "start": "node src/index.ts"
   },

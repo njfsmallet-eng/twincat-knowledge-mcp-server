@@ -10,7 +10,6 @@ This project provides a complete semantic search solution for TwinCAT 3 document
 2. **Embedding Generation**: Generates semantic embeddings using GPU-accelerated models
 3. **Search API**: Hosts a search API on GitHub Pages using Transformers.js
 4. **MCP Server**: Provides an MCP-compatible interface for Claude Desktop
-5. **GitHub Packages**: Published package for easy installation via `npx`
 
 ## Architecture
 
@@ -19,53 +18,62 @@ This project provides a complete semantic search solution for TwinCAT 3 document
                                               ↓
 [GitHub Pages] → Transformers.js API
                                               ↓
-[GitHub Packages] → MCP Server → Returns to Claude
+[Local MCP Server] → Returns to Claude
 ```
 
 ## Features
 
 - **Semantic Search**: Natural language search using transformer-based embeddings
 - **GPU Acceleration**: Fast embedding generation with ROCm (AMD GPU) support
-- **Zero-Config Clients**: Users only need `npx` to use the MCP server
 - **GitHub Pages API**: Free, unlimited hosting with Transformers.js
-- **GitHub Packages**: Easy distribution without npm account requirements
 - **Rich Metadata**: Structured YAML frontmatter for advanced filtering
 - **Category Support**: Search by product, category, version, and more
 
 ## Quick Start (For Users)
 
-### Option 1: npm Registry (Recommended)
+### Local Installation
 
-**No authentication required - package is public!**
+1. **Clone the repository**:
+```bash
+git clone https://github.com/njfsmallet-eng/twincat-knowledge-mcp-server.git
+cd twincat-knowledge-mcp-server
+```
 
-1. **Add to your Claude Desktop `mcp.json`**:
+2. **Install dependencies**:
+```bash
+npm install
+```
+
+3. **Add to your Claude Desktop `mcp.json`**:
 ```json
 {
   "mcpServers": {
     "twincat-knowledge": {
-      "command": "npx",
-      "args": ["@njfsmallet-eng/twincat-knowledge-mcp"],
+      "command": "node",
+      "args": ["C:/path/to/twincat-knowledge-mcp-server/src/index.ts"],
       "env": {}
     }
   }
 }
 ```
 
-### Option 2: Direct Git Installation
+**Note**: Replace `C:/path/to/twincat-knowledge-mcp-server` with your actual path to the cloned repository.
+
+### Alternative: Using tsx for TypeScript
+
+If you prefer to run TypeScript directly without compilation:
 
 ```json
 {
   "mcpServers": {
     "twincat-knowledge": {
       "command": "npx",
-      "args": ["https://github.com/njfsmallet-eng/twincat-knowledge-mcp-server.git"],
+      "args": ["-y", "tsx", "C:/path/to/twincat-knowledge-mcp-server/src/index.ts"],
       "env": {}
     }
   }
 }
 ```
-
-That's it! No npm account or authentication required.
 
 ## Installation (For Developers)
 
@@ -85,7 +93,7 @@ pip install -r requirements.txt
 npm install
 ```
 
-### 4. Build the project:
+### 4. Build the project (optional):
 ```bash
 npm run build
 ```
@@ -109,28 +117,7 @@ git commit -m "Update embeddings"
 git push
 ```
 
-GitHub Actions will automatically deploy to GitHub Pages and publish to GitHub Packages.
-
-### Publishing New Versions
-
-#### Method 1: Automatic via Git Tags (Recommended)
-```bash
-# Update version in package.json if needed
-npm version patch  # or minor, major
-
-# Create and push tag
-git tag v1.0.1
-git push origin main
-git push origin v1.0.1
-
-# GitHub Actions will automatically publish to GitHub Packages
-```
-
-#### Method 2: Manual via GitHub Actions
-1. Go to **Actions** → **Publish Package to GitHub Packages**
-2. Click **Run workflow**
-3. Enter version (e.g., `1.0.1`)
-4. Click **Run workflow**
+GitHub Actions will automatically deploy to GitHub Pages.
 
 ### Using the MCP Server
 
@@ -166,8 +153,7 @@ twincat-knowledge-mcp-server/
 │   └── metadata.json           # Generation stats
 ├── docs/                        # Converted markdown docs
 ├── .github/workflows/           # CI/CD
-│   ├── deploy-pages.yml        # GitHub Pages deployment
-│   └── publish-package.yml     # GitHub Packages publishing
+│   └── deploy-pages.yml        # GitHub Pages deployment
 ├── package.json                 # Node.js config
 ├── tsconfig.json               # TypeScript config
 └── requirements.txt            # Python dependencies
@@ -203,22 +189,15 @@ twincat-knowledge-mcp-server/
 ### MCP Server
 - **Transport**: stdio
 - **Compatibility**: Claude Desktop
-- **Zero Config**: Works with just `npx`
+- **Local Installation**: Clone and configure directly
 
-## Distribution
+## Local Usage
 
-### npm Registry
-- **Registry**: `https://registry.npmjs.org/`
-- **Package**: `@njfsmallet-eng/twincat-knowledge-mcp`
-- **Auto-publish**: On git tags via GitHub Actions
-- **Public**: No authentication required
-- **Free**: No npm account required
-
-### Package Information
-- **Size**: ~85 MB (includes embeddings)
-- **Files**: 338 files
-- **Dependencies**: Minimal (only MCP SDK)
-- **Compatibility**: Node.js >=18.0.0
+### Requirements
+- **Node.js**: >=18.0.0
+- **Dependencies**: Only MCP SDK required
+- **Size**: ~160 MB (includes embeddings and documentation)
+- **Files**: 338 files total
 
 ## Contributing
 

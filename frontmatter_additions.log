@@ -1,9 +1,0 @@
-2025-10-25 17:44:16,686 - INFO - Starting frontmatter addition process
-2025-10-25 17:44:16,691 - INFO - Found 289 markdown files
-2025-10-25 17:44:16,692 - INFO - Creating backup of docs/ directory...
-2025-10-25 17:44:16,933 - INFO - Backup created in docs_backup/
-2025-10-25 17:44:18,326 - INFO - 
-============================================================
-2025-10-25 17:44:18,326 - INFO - Processing complete!
-2025-10-25 17:44:18,326 - INFO - Successfully processed: 288/288 files
-2025-10-25 17:44:18,326 - INFO - ============================================================
