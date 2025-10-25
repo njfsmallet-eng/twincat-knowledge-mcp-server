@@ -261,6 +261,11 @@ window.search = async function() {
             <div style="margin: 5px 0; font-size: 0.8em; color: #888;">
                 🏷️ <strong>Tags:</strong> ${r.metadata.tags ? r.metadata.tags.join(', ') : 'N/A'}
             </div>
+            ${r.metadata.source_pdf ? `
+            <div style="margin: 5px 0; font-size: 0.8em;">
+                📄 <strong>Source PDF:</strong> <a href="${r.metadata.source_pdf}" target="_blank" style="color: #0066cc; text-decoration: none;">${r.metadata.source_pdf}</a>
+            </div>
+            ` : ''}
             <div style="margin: 8px 0; font-size: 0.9em;">
                 <strong>Score:</strong> ${r.score.toFixed(3)}
             </div>
