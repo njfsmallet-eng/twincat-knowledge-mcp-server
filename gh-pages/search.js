@@ -8,6 +8,18 @@ let embeddings = null;
 const GITHUB_USER = 'njfsmallet-eng';
 const REPO_NAME = 'twincat-knowledge-mcp-server';
 
+// Fonction pour mettre à jour le statut avec barre de progression
+function updateStatus(message, progress = null) {
+    const statusEl = document.getElementById('status');
+    const statusText = statusEl.querySelector('div:first-child');
+    const loadingText = statusEl.querySelector('.loading-text');
+    
+    statusText.textContent = message;
+    if (loadingText) {
+        loadingText.textContent = progress || message;
+    }
+}
+
 // Initialisation au chargement
 async function init() {
     console.log('[DEBUG] Initializing search...');
@@ -15,7 +27,7 @@ async function init() {
     
     try {
         console.log('[DEBUG] Starting model load...');
-        statusEl.textContent = 'Loading model (first time: ~90 MB, then cached)...';
+        updateStatus('Loading AI model...', 'Downloading transformer model (~90 MB, cached after first use)');
         
         // 1. Charger modèle ONNX (cache automatique IndexedDB)
         console.log('[DEBUG] Loading model pipeline...');
@@ -29,7 +41,7 @@ async function init() {
         );
         console.log('[DEBUG] Model loaded successfully');
         
-        statusEl.textContent = 'Loading embeddings URLs...';
+        updateStatus('Loading API configuration...', 'Fetching embeddings URLs from GitHub');
         
         // 2. Charger URLs depuis l'API
         console.log('[DEBUG] Fetching /api/embeddings.json...');
@@ -45,7 +57,7 @@ async function init() {
         const urls = await apiRes.json();
         console.log('[DEBUG] URLs loaded:', urls);
         
-        statusEl.textContent = 'Loading chunks...';
+        updateStatus('Loading documentation chunks...', `Downloading ${urls.chunks.includes('large') ? 'large' : 'standard'} chunks file`);
         
         // Charger chunks depuis LFS media URL
         console.log('[DEBUG] Fetching chunks from:', urls.chunks);
@@ -58,7 +70,7 @@ async function init() {
         chunks = await chunksRes.json();
         console.log('[DEBUG] Chunks loaded:', chunks.length, 'chunks');
         
-        statusEl.textContent = 'Loading embeddings...';
+        updateStatus('Loading embeddings vectors...', `Downloading and decompressing ${Math.round(urls.embeddings.includes('large') ? 57 : 13)} MB embeddings`);
         
         // Charger embeddings compressés depuis LFS media URL
         console.log('[DEBUG] Fetching embeddings from:', urls.embeddings);
@@ -70,6 +82,8 @@ async function init() {
         }
         const embBuffer = await embRes.arrayBuffer();
         console.log('[DEBUG] Embeddings buffer size:', embBuffer.byteLength);
+        
+        updateStatus('Processing embeddings...', 'Decompressing and parsing vector data');
         
         // Décompresser avec l'API native du navigateur (comme le client MCP)
         let decompressed;
@@ -94,8 +108,14 @@ async function init() {
         }
         embeddings = parseNpy(decompressed.buffer);
         
+        // Finaliser le chargement
         statusEl.className = 'status ready';
-        statusEl.textContent = `Ready! ${chunks.length} chunks loaded`;
+        statusEl.innerHTML = `
+            <div>✅ Ready! ${chunks.length.toLocaleString()} chunks loaded</div>
+            <div style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                AI model: Xenova/all-MiniLM-L6-v2 | Embeddings: ${embeddings.length.toLocaleString()} vectors
+            </div>
+        `;
         document.getElementById('search-ui').style.display = 'block';
         
     } catch (error) {
