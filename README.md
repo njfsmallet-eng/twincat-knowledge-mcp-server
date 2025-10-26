@@ -100,7 +100,7 @@ Both platforms support the standard MCP stdio protocol used by this server.
 Once configured in Cursor or LM Studio, use the `search_knowledge` tool:
 
 ```
-"Search for information about OPC UA configuration"
+"Describe what TwinCAT Scope is and its main features."
 ```
 
 **Available filters:**
