@@ -1,6 +1,6 @@
 import { SearchResult, SearchFilters, ChunkMetadata } from './types.js';
 import { pipeline } from '@xenova/transformers';
-import { CacheManager } from './cache-manager.js';
+import { CacheManager } from './cache-manager';
 
 interface EmbeddingsUrls {
   chunks: string;

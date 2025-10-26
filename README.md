@@ -1,34 +1,34 @@
 # TwinCAT Knowledge MCP Server
 
-A Model Context Protocol (MCP) server providing semantic search access to TwinCAT 3 documentation. This project includes tools for converting PDFs to Markdown, generating embeddings with GPU acceleration, and hosting a searchable API on GitHub Pages.
+A Model Context Protocol (MCP) server providing semantic search access to TwinCAT 3 documentation. This project includes tools for converting PDFs to Markdown, generating embeddings, and hosting a searchable API on GitHub Pages.
 
 ## Overview
 
 This project provides a complete semantic search solution for TwinCAT 3 documentation:
 
 1. **PDF Conversion**: Converts 290 TwinCAT 3 documentation PDFs from Beckhoff to Markdown format
-2. **Embedding Generation**: Generates semantic embeddings using GPU-accelerated models
+2. **Embedding Generation**: Generates semantic embeddings using transformer models
 3. **Search API**: Hosts a search API on GitHub Pages using Transformers.js
-4. **MCP Server**: Provides an MCP-compatible interface for Claude Desktop/Cursor
+4. **MCP Server**: Provides an MCP-compatible interface for Cursor and LM Studio
 
 ## Architecture
 
 ```
-[Local GPU ROCm] → Generate Embeddings → Push to GitHub
-                                              ↓
+[Generate Embeddings] → Push to GitHub
+            ↓
 [GitHub Pages] → Transformers.js API
-                                              ↓
-[Local MCP Server] → Returns to Claude
+            ↓
+[Local MCP Server] → Returns to Cursor/LM Studio
 ```
 
 ## Features
 
 - **Semantic Search**: Natural language search using transformer-based embeddings
 - **Persistent Cache**: Intelligent caching system for 90% faster subsequent searches
-- **GPU Acceleration**: Fast embedding generation with ROCm (AMD) or CUDA (NVIDIA) support (CPU fallback available)
 - **GitHub Pages API**: Free, unlimited hosting with Transformers.js
 - **Rich Metadata**: Structured YAML frontmatter for advanced filtering
 - **Category Support**: Search by product, category, version, and more
+- **No GPU Required**: The MCP server runs on CPU, works on any machine
 
 ## Quick Start
 
@@ -45,26 +45,59 @@ cd twincat-knowledge-mcp-server
 npm install
 ```
 
-3. **Add to your Claude Desktop `mcp.json`**:
+3. **Build the project**:
+```bash
+npm run build
+```
+
+This compiles TypeScript to JavaScript in the `dist/` directory. The `dist/` folder is not tracked in git, so you need to build after cloning.
+
+**Note**: You only need to rebuild if you modify the source code. The compiled `dist/` files are not committed to git.
+
+4. **Add to your Cursor/LM Studio `mcp.json`**:
+
+**Option A: Using compiled CommonJS (Recommended)**
 ```json
 {
   "mcpServers": {
     "twincat-knowledge": {
-      "command": "npx",
-      "args": ["-y", "tsx", "C:\\path\\to\\twincat-knowledge-mcp-server\\src\\index.ts"],
+      "command": "node",
+      "args": ["C:\\Users\\YourUsername\\path\\to\\twincat-knowledge-mcp-server\\dist\\index.js"],
       "env": {}
     }
   }
 }
 ```
 
-**Note**: Replace `C:\\path\\to\\twincat-knowledge-mcp-server` with your actual path to the cloned repository.
+**Option B: Using TypeScript directly**
+```json
+{
+  "mcpServers": {
+    "twincat-knowledge": {
+      "command": "npx",
+      "args": ["-y", "tsx", "C:\\Users\\YourUsername\\path\\to\\twincat-knowledge-mcp-server\\src\\index.ts"],
+      "env": {}
+    }
+  }
+}
+```
+
+**Note**: Replace the path with your actual repository location. Use double backslashes (`\\`) for Windows paths.
+
+### Configuration for Different Platforms
+
+The configuration works identically across all compatible platforms:
+
+- **Cursor**: Uses the `mcp.json` file in your user directory (typically `C:\Users\YourUsername\.cursor\mcp.json` on Windows)
+- **LM Studio**: Uses the same MCP server configuration format
+
+Both platforms support the standard MCP stdio protocol used by this server.
 
 ## Usage
 
 ### Using the MCP Server
 
-Once configured in Claude Desktop/Cursor, use the `search_knowledge` tool:
+Once configured in Cursor or LM Studio, use the `search_knowledge` tool:
 
 ```
 "Search for information about OPC UA configuration"
@@ -99,7 +132,7 @@ You can test the search functionality directly in your browser at:
 This web interface allows you to:
 - Test semantic search queries
 - See real-time results from the TwinCAT documentation
-- Verify that the API is working correctly before configuring Claude Desktop
+- Verify that the API is working correctly before configuring Cursor or LM Studio
 
 ## File Structure
 
@@ -110,6 +143,9 @@ twincat-knowledge-mcp-server/
 │   ├── types.ts                # Type definitions
 │   ├── github-pages-client.ts  # API client
 │   └── cache-manager.ts        # Cache management
+├── dist/                        # Compiled JavaScript (CommonJS)
+│   ├── index.js                # Compiled MCP server
+│   └── *.js                     # Other compiled files
 ├── scripts/                     # Python scripts
 │   ├── chunking.py             # Text chunking
 │   ├── generate_embeddings.py  # Embedding generation
@@ -137,24 +173,29 @@ twincat-knowledge-mcp-server/
 
 ## Dependencies
 
-**Python:**
+**Python (for embedding generation only):**
 - `sentence-transformers` - Transformer models for embeddings
-- `torch` - PyTorch with ROCm support
+- `torch` - PyTorch
 - `numpy` - Numerical operations
 - `pyyaml` - YAML parsing
 - `tqdm` - Progress bars
 
+**Note**: Python dependencies are only needed to generate embeddings. The MCP server itself requires only Node.js.
+
 **Node.js:**
 - `@modelcontextprotocol/sdk` - MCP protocol
-- `typescript` - TypeScript compiler
+- `@xenova/transformers` - Transformers.js for embeddings
+- `typescript` - TypeScript compiler (for building)
+
+The project compiles TypeScript to CommonJS for optimal Node.js compatibility.
 
 ## Architecture Details
 
 ### Embedding Generation
 - **Model**: `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions)
-- **GPU**: ROCm (AMD) or CUDA (NVIDIA) - CPU fallback available
 - **Format**: Float32 NumPy arrays compressed with gzip
 - **Size**: ~57 MB compressed for all documents
+- **Note**: Embeddings are pre-generated and hosted on GitHub Pages. The MCP server does not require any GPU or Python dependencies to run.
 
 ### Search API
 - **Frontend**: Transformers.js in browser
@@ -164,7 +205,9 @@ twincat-knowledge-mcp-server/
 
 ### MCP Server
 - **Transport**: stdio
-- **Compatibility**: Claude Desktop
+- **Compatibility**: Cursor, LM Studio (tested)
+- **Module System**: CommonJS (compiled from TypeScript)
+- **Language**: TypeScript source, compiled to JavaScript
 - **Local Installation**: Clone and configure directly
 - **Cache System**: Persistent disk-based caching for optimal performance
 - **Performance**: 90% faster after initial cache population
@@ -173,9 +216,11 @@ twincat-knowledge-mcp-server/
 
 ### Requirements
 - **Node.js**: >=18.0.0
+- **TypeScript**: >=5.9.0 (for building)
 - **Dependencies**: Only MCP SDK and Transformers.js required
 - **Size**: ~160 MB (includes embeddings and documentation)
 - **Cache**: Additional ~110 MB for persistent cache (auto-created)
+- **Build**: Run `npx tsc` to compile TypeScript to CommonJS in `dist/` directory
 - **Files**: 338 files total
 
 ## License

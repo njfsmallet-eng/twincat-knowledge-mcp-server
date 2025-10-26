@@ -2,9 +2,10 @@
   "name": "twincat-knowledge-mcp-server",
   "version": "1.0.0",
   "description": "MCP server for TwinCAT knowledge base semantic search - Access 42,000+ documentation chunks with AI-powered search",
-  "type": "module",
   "scripts": {
-    "start": "npx tsx src/index.ts"
+    "start": "npx tsx src/index.ts",
+    "build": "tsc",
+    "dev": "npx tsx src/index.ts"
   },
   "keywords": [
     "twincat",

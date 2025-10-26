@@ -4,17 +4,16 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { GitHubPagesClient } from './github-pages-client.js';
+import { GitHubPagesClient } from './github-pages-client';
 import { promises as fs } from 'fs';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 
 const GITHUB_USER = 'njfsmallet-eng';
 const REPO_NAME = 'twincat-knowledge-mcp-server';
 
 // Get the project root directory (where package.json is located)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// @ts-ignore - __dirname is available in CommonJS
+// When running from dist/, __dirname is the dist folder, so go up one level
 const PROJECT_ROOT = dirname(__dirname);
 const CACHE_DIR = join(PROJECT_ROOT, '.cache');
 
@@ -131,7 +130,10 @@ async function main() {
   
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('TwinCAT Knowledge MCP Server running on stdio');
 }
 
-main();
+// Start the server
+main().catch((error) => {
+  console.error('Failed to start MCP server:', error);
+  process.exit(1);
+});
